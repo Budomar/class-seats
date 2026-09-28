@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Чарджоу, школа №20</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Georgia, 'Times New Roman', serif; background: #f0ebe0; color: #3a2f1e; padding: 20px; }
+.container { max-width: 1100px; margin: 0 auto; }
+header { text-align: center; margin-bottom: 20px; }
+header h1 { font-size: 30px; color: #2d4a2d; margin-bottom: 6px; }
+header p { font-size: 15px; color: #6b5b3e; font-style: italic; }
+.periods { display: flex; justify-content: center; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
+.period-btn { padding: 11px 26px; font-size: 16px; font-family: Georgia, serif; background: #e8dfc8; border: 2px solid #a89468; border-radius: 6px; color: #4a3c1e; cursor: pointer; transition: 0.2s; }
+.period-btn:hover { background: #d8cba8; }
+.period-btn.active { background: #4a6b3a; color: #f0ebe0; border-color: #2d4a2d; }
+.classroom-wrap { background: #e8dfc8; border: 3px solid #8b7548; border-radius: 8px; padding: 18px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); overflow-x: auto; }
+.classroom { position: relative; width: 1040px; min-width: 1040px; margin: 0 auto; background: #f5efdc; border-radius: 4px; padding: 25px 20px 20px 40px; box-shadow: inset 0 0 40px rgba(139,117,72,0.15); }
+.wall-top, .wall-left, .wall-right { position: absolute; background: linear-gradient(180deg, #c9b88a, #a89468); }
+.wall-top { top: 0; left: 0; right: 0; height: 12px; border-radius: 4px 4px 0 0; }
+.wall-left { top: 0; bottom: 0; left: 0; width: 12px; }
+.wall-right { top: 0; bottom: 0; right: 0; width: 12px; }
+.blackboard { background: #2d4a2d; border: 8px solid #8b6f3e; border-radius: 4px; height: 85px; margin: 15px 30px 20px 30px; box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; color: rgba(240,235,224,0.7); font-size: 15px; letter-spacing: 3px; position: relative; }
+.blackboard::after { content: ''; position: absolute; bottom: 6px; right: 20px; width: 36px; height: 7px; background: #d8cba8; border-radius: 2px; box-shadow: 18px 0 0 #d8cba8, 36px 0 0 #d8cba8; }
+.teacher-desk { position: absolute; top: 130px; left: 55px; width: 120px; height: 65px; background: linear-gradient(135deg, #a87b4a, #8b6238); border: 2px solid #6b4a25; border-radius: 4px; box-shadow: 0 4px 8px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.85); font-size: 10px; text-align: center; padding: 4px; }
+.door { position: absolute; top: 130px; right: 35px; width: 65px; height: 105px; background: linear-gradient(135deg, #b8935f, #8b6f3e); border: 3px solid #6b4a25; border-radius: 3px 3px 0 0; box-shadow: inset 0 0 15px rgba(0,0,0,0.2), 0 3px 6px rgba(0,0,0,0.2); }
+.door::before { content: ''; position: absolute; top: 14px; left: 9px; right: 9px; height: 32px; background: rgba(180,210,230,0.4); border: 1px solid #6b4a25; border-radius: 2px; }
+.door::after { content: ''; position: absolute; top: 58px; right: 7px; width: 8px; height: 8px; background: #d4af37; border-radius: 50%; }
+.windows-col { position: absolute; left: 20px; top: 190px; display: flex; flex-direction: column; gap: 55px; }
+.window { width: 13px; height: 110px; background: linear-gradient(180deg, #b8d4e8, #8fb8d4); border: 3px solid #a89468; border-radius: 2px; box-shadow: 0 0 20px rgba(180,212,232,0.6); position: relative; }
+.window::before { content: ''; position: absolute; top: 50%; left: -3px; right: -3px; height: 3px; background: #a89468; }
+.seats-grid { display: flex; gap: 22px; justify-content: center; margin-top: 10px; }
+.seat-row { display: flex; flex-direction: column; gap: 8px; }
+.desk-pair { display: flex; gap: 3px; background: #a87b4a; border: 2px solid #6b4a25; border-radius: 4px; padding: 3px; box-shadow: 0 3px 6px rgba(0,0,0,0.2); }
+.seat { width: 78px; height: 60px; background: #f5efdc; border: 1px solid #8b7548; border-radius: 3px; cursor: pointer; transition: 0.2s; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding: 2px; font-size: 10px; color: #3a2f1e; text-align: center; }
+.seat:hover { background: #fffbe8; box-shadow: inset 0 0 10px rgba(74,107,58,0.4); }
+.seat.taken { background: #dde8d0; border-color: #4a6b3a; }
+.seat.taken:hover { background: #c8dcb8; }
+.seat-photo { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #4a6b3a; margin-bottom: 2px; }
+.seat-initials { width: 28px; height: 28px; border-radius: 50%; background: #4a6b3a; color: #f0ebe0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; margin-bottom: 2px; }
+.seat-name { font-size: 9px; line-height: 1.1; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; padding: 0 2px; }
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.show { display: flex; }
+.modal { background: #f5efdc; border: 3px solid #8b7548; border-radius: 8px; padding: 25px; max-width: 480px; width: 100%; box-shadow: 0 12px 40px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto; }
+.modal h2 { color: #2d4a2d; font-size: 22px; margin-bottom: 5px; }
+.modal-sub { color: #6b5b3e; font-size: 13px; font-style: italic; margin-bottom: 18px; }
+.modal label { display: block; font-size: 13px; font-weight: bold; color: #4a3c1e; margin: 12px 0 4px; }
+.modal input[type="text"], .modal textarea { width: 100%; padding: 10px; font-family: Georgia, serif; font-size: 14px; border: 2px solid #a89468; border-radius: 4px; background: #fffbe8; color: #3a2f1e; }
+.modal textarea { resize: vertical; min-height: 60px; }
+.modal input[type="file"] { width: 100%; font-size: 12px; padding: 6px; background: #fffbe8; border: 2px solid #a89468; border-radius: 4px; }
+.modal-actions { display: flex; gap: 10px; margin-top: 22px; justify-content: flex-end; }
+.btn-cancel, .btn-save { padding: 10px 22px; font-family: Georgia, serif; font-size: 15px; border-radius: 5px; cursor: pointer; transition: 0.2s; }
+.btn-cancel { background: #e8dfc8; border: 2px solid #a89468; color: #4a3c1e; }
+.btn-cancel:hover { background: #d8cba8; }
+.btn-save { background: #4a6b3a; border: 2px solid #2d4a2d; color: #f0ebe0; }
+.btn-save:hover { background: #3a5a2a; }
+.btn-save:disabled { opacity: 0.6; cursor: wait; }
+.btn-delete { background: #a04a3a; border: 2px solid #6b2a1a; color: #f0ebe0; padding: 10px 22px; font-family: Georgia, serif; font-size: 15px; border-radius: 5px; cursor: pointer; margin-right: auto; }
+.btn-delete:hover { background: #8a3a2a; }
+.modal-error { color: #a04a3a; font-size: 13px; margin-top: 12px; min-height: 18px; text-align: center; }
+.loading { text-align: center; padding: 40px; color: #6b5b3e; font-style: italic; font-size: 15px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Чарджоу, школа №20</h1>
+    <p>Наш класс — найдите своё место</p>
+  </header>
+  <div class="periods">
+    <button class="period-btn active" data-period="5">5 класс</button>
+    <button class="period-btn" data-period="9">9 класс</button>
+    <button class="period-btn" data-period="11">11 класс</button>
+  </div>
+  <div class="classroom-wrap">
+    <div class="classroom">
+      <div class="wall-top"></div>
+      <div class="wall-left"></div>
+      <div class="wall-right"></div>
+      <div class="blackboard">Д О С К А</div>
+      <div class="teacher-desk">Учительский<br>стол</div>
+      <div class="door"></div>
+      <div class="windows-col"><div class="window"></div><div class="window"></div><div class="window"></div></div>
+      <div class="seats-grid" id="seatsGrid"></div>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2 id="modalTitle">Занять место</h2>
+    <p class="modal-sub" id="modalSub"></p>
+    <label>Имя и фамилия *</label>
+    <input type="text" id="inputName" placeholder="Например: Иван Петров" maxlength="60">
+    <label>Пара слов о себе (необязательно)</label>
+    <textarea id="inputComment" placeholder="Например: сидел с Петровым, вечно списывал" maxlength="200"></textarea>
+    <label>Фото сейчас (необязательно)</label>
+    <input type="file" id="inputPhotoNow" accept="image/*">
+    <label>Фото из школы (необязательно)</label>
+    <input type="file" id="inputPhotoThen" accept="image/*">
+    <div class="modal-actions">
+      <button class="btn-cancel" id="btnCancel">Отмена</button>
+      <button class="btn-save" id="btnSave">Сесть</button>
+    </div>
+    <div class="modal-error" id="modalError"></div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = 'https://zxxkivszhmhdfhcgxddr.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp4eGtpdnN6aG1oZGZoY2d4ZGRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1NjIyMTcsImV4cCI6MjEwNjEzODIxN30.1IkvkDWMRxnmCDJkzTBUho01Q-B79KZ4EpcrwLJWWUs';
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let currentPeriod = '5';
+let seats = [];
+let currentEditToken = localStorage.getItem('edit_token') || null;
+let editingSeat = null;
+
+const grid = document.getElementById('seatsGrid');
+const overlay = document.getElementById('modalOverlay');
+const modalTitle = document.getElementById('modalTitle');
+const modalSub = document.getElementById('modalSub');
+const inputName = document.getElementById('inputName');
+const inputComment = document.getElementById('inputComment');
+const inputPhotoNow = document.getElementById('inputPhotoNow');
+const inputPhotoThen = document.getElementById('inputPhotoThen');
+const btnSave = document.getElementById('btnSave');
+const btnCancel = document.getElementById('btnCancel');
+const modalError = document.getElementById('modalError');
+
+document.querySelectorAll('.period-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentPeriod = btn.dataset.period;
+    loadSeats();
+  });
+});
+
+async function loadSeats() {
+  grid.innerHTML = '<div class="loading">Загружаем места...</div>';
+  const { data, error } = await sb.from('seats').select('*').eq('period', currentPeriod);
+  if (error) { grid.innerHTML = '<div class="loading">Ошибка загрузки: ' + error.message + '</div>'; return; }
+  seats = data || [];
+  renderGrid();
+}
+
+function renderGrid() {
+  grid.innerHTML = '';
+  for (let row = 1; row <= 3; row++) {
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'seat-row';
+    for (let desk = 1; desk <= 5; desk++) {
+      const pairDiv = document.createElement('div');
+      pairDiv.className = 'desk-pair';
+      ['left', 'right'].forEach(side => pairDiv.appendChild(makeSeat(row, desk, side)));
+      rowDiv.appendChild(pairDiv);
+    }
+    grid.appendChild(rowDiv);
+  }
+}
+
+function makeSeat(row, desk, side) {
+  const seatData = seats.find(s => s.row === row && s.desk === desk && s.side === side);
+  const div = document.createElement('div');
+  div.className = 'seat' + (seatData ? ' taken' : '');
+  if (seatData) {
+    if (seatData.photo_now) {
+      const img = document.createElement('img');
+      img.className = 'seat-photo';
+      img.src = seatData.photo_now;
+      img.alt = seatData.name;
+      div.appendChild(img);
+    } else {
+      const init = document.createElement('div');
+      init.className = 'seat-initials';
+      init.textContent = (seatData.name || '?').trim().charAt(0).toUpperCase();
+      div.appendChild(init);
+    }
+    const nameEl = document.createElement('div');
+    nameEl.className = 'seat-name';
+    nameEl.textContent = seatData.name || '';
+    div.appendChild(nameEl);
+    div.title = seatData.name + (seatData.comment ? ' — ' + seatData.comment : '');
+  } else {
+    const plus = document.createElement('div');
+    plus.style.cssText = 'font-size:22px;color:#a89468;';
+    plus.textContent = '+';
+    div.appendChild(plus);
+    div.title = 'Занять это место';
+  }
+  div.addEventListener('click', () => openSeat(row, desk, side, seatData));
+  return div;
+}
+
+function openSeat(row, desk, side, seatData) {
+  editingSeat = { row, desk, side, existing: seatData };
+  modalError.textContent = '';
+  inputName.value = '';
+  inputComment.value = '';
+  inputPhotoNow.value = '';
+  inputPhotoThen.value = '';
+  const sideName = side === 'left' ? 'левое' : 'правое';
+  modalSub.textContent = 'Ряд ' + row + ', парта ' + desk + ', ' + sideName + ' место · ' + currentPeriod + ' класс';
+
+  if (seatData) {
+    if (seatData.edit_token === currentEditToken) {
+      modalTitle.textContent = 'Ваше место';
+      inputName.value = seatData.name || '';
+      inputComment.value = seatData.comment || '';
+      btnSave.textContent = 'Сохранить';
+      showDeleteButton(seatData);
+    } else {
+      modalTitle.textContent = 'Место занято';
+      modalSub.textContent += ' — ' + seatData.name;
+      if (seatData.comment) modalSub.textContent += ' · ' + seatData.comment;
+      inputName.disabled = true;
+      inputComment.disabled = true;
+      btnSave.style.display = 'none';
+      hideDeleteButton();
+      overlay.classList.add('show');
+      return;
+    }
+  } else {
+    modalTitle.textContent = 'Занять место';
+    btnSave.textContent = 'Сесть';
+    inputName.disabled = false;
+    inputComment.disabled = false;
+    btnSave.style.display = '';
+    hideDeleteButton();
+  }
+  overlay.classList.add('show');
+  setTimeout(() => inputName.focus(), 100);
+}
+
+function showDeleteButton(seatData) {
+  hideDeleteButton();
+  const btn = document.createElement('button');
+  btn.className = 'btn-delete';
+  btn.id = 'btnDelete';
+  btn.textContent = 'Освободить';
+  btn.addEventListener('click', () => deleteSeat(seatData));
+  document.querySelector('.modal-actions').prepend(btn);
+}
+
+function hideDeleteButton() {
+  const b = document.getElementById('btnDelete');
+  if (b) b.remove();
+}
+
+btnCancel.addEventListener('click', () => {
+  overlay.classList.remove('show');
+  inputName.disabled = false;
+  inputComment.disabled = false;
+  btnSave.style.display = '';
+});
+
+overlay.addEventListener('click', e => { if (e.target === overlay) btnCancel.click(); });
+
+btnSave.addEventListener('click', async () => {
+  if (editingSeat && editingSeat.existing && editingSeat.existing.edit_token !== currentEditToken) return;
+  const name = inputName.value.trim();
+  if (!name) { modalError.textContent = 'Пожалуйста, введите имя'; return; }
+  btnSave.disabled = true;
+  btnSave.textContent = 'Сохраняем...';
+  modalError.textContent = '';
+  try {
+    let photoNowUrl = editingSeat.existing ? editingSeat.existing.photo_now : null;
+    let photoThenUrl = editingSeat.existing ? editingSeat.existing.photo_then : null;
+    if (inputPhotoNow.files[0]) photoNowUrl = await uploadPhoto(inputPhotoNow.files[0]);
+    if (inputPhotoThen.files[0]) photoThenUrl = await uploadPhoto(inputPhotoThen.files[0]);
+    let token = currentEditToken;
+    if (!token) {
+      token = 'tok_' + Math.random().toString(36).slice(2) + Date.now();
+      localStorage.setItem('edit_token', token);
+      currentEditToken = token;
+    }
+    const payload = {
+      period: currentPeriod, row: editingSeat.row, desk: editingSeat.desk, side: editingSeat.side,
+      name: name, comment: inputComment.value.trim() || null,
+      photo_now: photoNowUrl, photo_then: photoThenUrl, edit_token: token
+    };
+    let error;
+    if (editingSeat.existing) {
+      const res = await sb.from('seats').update(payload).eq('id', editingSeat.existing.id);
+      error = res.error;
+    } else {
+      const res = await sb.from('seats').insert([payload]);
+      error = res.error;
+    }
+    if (error) throw error;
+    overlay.classList.remove('show');
+    await loadSeats();
+  } catch (err) {
+    modalError.textContent = 'Ошибка: ' + err.message;
+  } finally {
+    btnSave.disabled = false;
+    btnSave.textContent = editingSeat && editingSeat.existing ? 'Сохранить' : 'Сесть';
+    inputName.disabled = false;
+    inputComment.disabled = false;
+  }
+});
+
+async function uploadPhoto(file) {
+  const ext = file.name.split('.').pop();
+  const fileName = 'photo_' + Date.now() + '_' + Math.random().toString(36).slice(2) + '.' + ext;
+  const { error } = await sb.storage.from('photos').upload(fileName, file);
+  if (error) throw error;
+  const { data } = sb.storage.from('photos').getPublicUrl(fileName);
+  return data.publicUrl;
+}
+
+async function deleteSeat(seatData) {
+  if (!confirm('Освободить это место? Ваше имя и фото будут удалены.')) return;
+  btnSave.disabled = true;
+  btnSave.textContent = 'Удаляем...';
+  const { error } = await sb.from('seats').delete().eq('id', seatData.id);
+  if (error) {
+    modalError.textContent = 'Ошибка: ' + error.message;
+    btnSave.disabled = false;
+    btnSave.textContent = 'Сохранить';
+    return;
+  }
+  overlay.classList.remove('show');
+  await loadSeats();
+}
+
+loadSeats();
+</script>
+</body>
+</html>
